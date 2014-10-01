@@ -10,7 +10,6 @@
 /*
 Angular touch carousel with CSS GPU accel and slide buffering
 http://github.com/revolunet/angular-carousel
-
 */
 
 angular.module('angular-carousel', [
@@ -189,6 +188,7 @@ angular.module('angular-carousel').run(['$templateCache', function($templateCach
                     carouselId++;
 
                     var containerWidth,
+                        containerHeight,
                         transformProperty,
                         pressed,
                         startX,
@@ -283,13 +283,19 @@ angular.module('angular-carousel').run(['$templateCache', function($templateCach
                                 slidesCount = Object.keys(newValue).length;
                             }
                             updateIndicatorArray();
-                            if (!containerWidth) updateContainerWidth();
+                            if (!containerWidth) {
+                                updateContainerWidth();
+                            }
+                            if (!containerHeight) {
+                                updateContainerHeight(scope.carouselIndex);
+                            }
                             goToSlide(scope.carouselIndex);
                         });
                     } else {
                         slidesCount = iElement.children().length;
                         updateIndicatorArray();
                         updateContainerWidth();
+                        updateContainerHeight(scope.carouselIndex);
                     }
 
                     function updateIndicatorArray() {
@@ -297,6 +303,25 @@ angular.module('angular-carousel').run(['$templateCache', function($templateCach
                         var items = [];
                         for (var i = 0; i < slidesCount; i++) items[i] = i;
                         scope.carouselIndicatorArray = items;
+                    }
+
+                    function getCarouselHeight(slideNum) {
+                        var slides = carousel.children();
+                        if (slides.length === 0) {
+                            containerHeight = carousel[0].getBoundingClientRect().height;
+                        } else {
+                            containerHeight = slides[slideNum].getBoundingClientRect().height;
+                        }
+                        return containerHeight;
+                    }
+
+                    function updateContainerHeight(slideNum) {
+                        // force the carousel container height to match the first or current slide height
+                        container.css('height', '100%');
+                        var height = getCarouselHeight(slideNum);
+                        if (height) {
+                            container.css('height', height + 'px');
+                        }
                     }
 
                     function getCarouselWidth() {
@@ -321,6 +346,8 @@ angular.module('angular-carousel').run(['$templateCache', function($templateCach
                     }
 
                     function scroll(x) {
+                        updateContainerHeight(scope.carouselIndex);
+
                         // use CSS 3D transform to move the carousel
                         if (isNaN(x)) {
                             x = scope.carouselIndex * containerWidth;
@@ -560,6 +587,7 @@ angular.module('angular-carousel').run(['$templateCache', function($templateCach
                     var is3dAvailable = detect3dSupport();
 
                     function onOrientationChange() {
+                        updateContainerHeight(scope.carouselIndex);
                         updateContainerWidth();
                         goToSlide();
                     }
