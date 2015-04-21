@@ -413,6 +413,7 @@ angular.module('angular-carousel').run(['$templateCache', function($templateCach
                         if (animate) {
                             // simulate a swipe so we have the standard animation
                             // used when external binding index is updated or touch canceed
+                            getCarouselWidth();
                             offset = (i * containerWidth);
                             swipeEnd(null, null, true);
                             return;
