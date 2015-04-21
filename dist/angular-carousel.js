@@ -306,33 +306,41 @@ angular.module('angular-carousel').run(['$templateCache', function($templateCach
                     }
 
                     function getCarouselHeight(slideNum) {
-                        var slides = carousel.children();
-                        if (slides.length === 0) {
-                            containerHeight = carousel[0].getBoundingClientRect().height;
-                        } else {
-                            containerHeight = slides[slideNum].getBoundingClientRect().height;
+                        if (slideNum !== undefined) {
+                            var slides = carousel.children();
+                            for (var i = slides.length - 1; i >= 0; i--) {
+                                if (i != slideNum) {
+                                    slides[i].style.height = "0";
+                                }
+                                else {
+                                    slides[i].style.height = "100%";
+                                }
+                            }
+                            if (slides.length === 0) {
+                                containerHeight = carousel[0].getBoundingClientRect().height;
+                            } else {
+                                containerHeight = slides[slideNum].getBoundingClientRect().height;
+                            }
+                            return containerHeight;
                         }
-                        return containerHeight;
                     }
 
                     function updateContainerHeight(slideNum) {
                         // force the carousel container height to match the first or current slide height
                         container.css('height', '100%');
-                        var height = getCarouselHeight(slideNum);
-                        if (height) {
-                            container.css('height', height + 'px');
-                        }
+                        getCarouselHeight(slideNum);
+                        // if (height) {
+                        //     container.css('height', height + 'px');
+                        // }
                     }
 
                     function getCarouselWidth() {
-                       // container.css('width', 'auto');
                         var slides = carousel.children();
                         if (slides.length === 0) {
                             containerWidth = carousel[0].getBoundingClientRect().width;
                         } else {
                             containerWidth = slides[0].getBoundingClientRect().width;
                         }
-                        // console.log('getCarouselWidth', containerWidth);
                         return containerWidth;
                     }
 
@@ -407,6 +415,7 @@ angular.module('angular-carousel').run(['$templateCache', function($templateCach
                     }
 
                     function goToSlide(i, animate) {
+                        getCarouselHeight(i);
                         if (isNaN(i)) {
                             i = scope.carouselIndex;
                         }
